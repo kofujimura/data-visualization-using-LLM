@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テーマ別アイテム類似度可視化</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>テーマ別アイテム類似度可視化</h1>
+            <p>任意のテーマからアイテムを抽出し、LLMのembeddingで類似度を可視化します</p>
+        </header>
+
+        <div class="settings-panel">
+            <div class="form-group">
+                <label for="apiKey">OpenAI APIキー:</label>
+                <input type="password" id="apiKey" placeholder="sk-...">
+                <button id="saveApiKey" class="btn-secondary">保存</button>
+                <span id="apiKeyStatus" class="status-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="dataFile">データファイル (CSV / XLSX):</label>
+                <input type="file" id="dataFile" accept=".csv,.xlsx">
+                <div class="file-info">
+                    <small>1行目を見出しとして、2行目以降のデータを可視化します</small>
+                </div>
+            </div>
+
+            <div id="filePreview" class="file-preview" style="display: none;">
+                <h4>プレビュー</h4>
+                <div id="previewContent"></div>
+            </div>
+
+            <button id="generateBtn" class="btn-primary" disabled>生成して可視化</button>
+        </div>
+
+        <div id="progressContainer" class="progress-container" style="display: none;">
+            <div class="progress-info">
+                <span id="progressText">処理中...</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div id="errorContainer" class="error-container" style="display: none;">
+            <p id="errorMessage"></p>
+        </div>
+
+        <div id="visualizationContainer" class="visualization-container">
+            <svg id="graph" width="1200" height="800"></svg>
+        </div>
+
+        <div id="infoPanel" class="info-panel" style="display: none;">
+            <h3>生成されたアイテム</h3>
+            <div id="statsContainer">
+                <p>ファイル名: <span id="statsFilename"></span></p>
+                <p>アイテム数: <span id="statsCount"></span></p>
+                <p>クラスタ数: <span id="statsCluster"></span></p>
+                <p>エッジ数: <span id="statsEdges"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="kmeans.js"></script>
+    <script src="app.js"></script>
+    <script src="visualization.js"></script>
+</body>
+</html>

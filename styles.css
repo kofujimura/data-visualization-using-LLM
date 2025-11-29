@@ -1,0 +1,288 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.settings-panel {
+    padding: 30px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-group input[type="number"] {
+    width: 150px;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    margin-left: 10px;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.status-message {
+    margin-left: 10px;
+    font-size: 12px;
+    color: #28a745;
+}
+
+.progress-container {
+    padding: 20px 30px;
+    background: #fff3cd;
+    border-bottom: 1px solid #ffeaa7;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #856404;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 24px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.error-container {
+    padding: 20px 30px;
+    background: #f8d7da;
+    border-bottom: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.visualization-container {
+    padding: 20px;
+    background: #fafafa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+#graph {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.links line {
+    stroke: #999;
+    stroke-opacity: 0.6;
+}
+
+.nodes circle {
+    stroke: #fff;
+    stroke-width: 1.5px;
+    cursor: pointer;
+}
+
+.nodes circle:hover {
+    stroke-width: 3px;
+    stroke: #667eea;
+}
+
+.nodes text {
+    font-family: sans-serif;
+    font-size: 10px;
+    pointer-events: none;
+    user-select: none;
+}
+
+.info-panel {
+    padding: 30px;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+}
+
+.info-panel h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+#statsContainer p {
+    margin: 8px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+#statsContainer span {
+    font-weight: 600;
+    color: #667eea;
+}
+
+.file-info {
+    margin-top: 8px;
+}
+
+.file-info small {
+    color: #666;
+    font-size: 12px;
+}
+
+.form-group input[type="file"] {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.file-preview {
+    margin-top: 20px;
+    padding: 15px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.file-preview h4 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 14px;
+}
+
+.file-preview table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.file-preview th,
+.file-preview td {
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+}
+
+.file-preview th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+.file-preview td {
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .container {
+        border-radius: 0;
+    }
+
+    header h1 {
+        font-size: 22px;
+    }
+
+    .settings-panel {
+        padding: 20px;
+    }
+
+    #graph {
+        width: 100% !important;
+        height: 600px !important;
+    }
+}
