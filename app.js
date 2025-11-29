@@ -296,7 +296,7 @@ class ItemVisualizationApp {
                 'Authorization': `Bearer ${this.apiKey}`
             },
             body: JSON.stringify({
-                model: 'text-embedding-3-small',
+                model: 'text-embedding-3-large',
                 input: texts
             })
         });
@@ -358,19 +358,25 @@ class ItemVisualizationApp {
         });
 
         const links = [];
+        const addedEdges = new Set();
+
         Object.keys(edgesRaw).forEach(sourceId => {
             const sid = parseInt(sourceId);
             const connections = edgesRaw[sid];
 
             const topConnections = connections
                 .sort((a, b) => b.value - a.value)
-                .slice(0, 5);
+                .slice(0, 3);
 
             topConnections.forEach(conn => {
-                if (sid < conn.targetId) {
+                const tid = conn.targetId;
+                const edgeKey = sid < tid ? `${sid}-${tid}` : `${tid}-${sid}`;
+
+                if (!addedEdges.has(edgeKey)) {
+                    addedEdges.add(edgeKey);
                     links.push({
                         source: items[sid],
-                        target: items[conn.targetId],
+                        target: items[tid],
                         value: conn.value * 10
                     });
                 }

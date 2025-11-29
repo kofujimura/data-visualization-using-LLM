@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グラフ可視化サンプル</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .visualization-container {
+            padding: 20px;
+            background: #fafafa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 600px;
+        }
+
+        #graph {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            height: auto;
+        }
+
+        .links line {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+
+        .nodes circle {
+            stroke: #fff;
+            stroke-width: 1.5px;
+            cursor: pointer;
+        }
+
+        .nodes circle:hover {
+            stroke-width: 3px;
+            stroke: #667eea;
+        }
+
+        .nodes text {
+            font-family: sans-serif;
+            font-size: 10px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .info-panel {
+            padding: 30px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        #statsContainer p {
+            margin: 8px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        #statsContainer span {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .error-message {
+            padding: 20px 30px;
+            background: #f8d7da;
+            color: #721c24;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+
+            #graph {
+                aspect-ratio: 1 / 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>食品類似度ネットワークグラフ</h1>
+            <p>LLM embeddingモデルで算出した食品間の類似度を可視化</p>
+        </header>
+
+        <div id="visualizationContainer" class="visualization-container">
+            <svg id="graph"></svg>
+        </div>
+
+        <div id="infoPanel" class="info-panel">
+            <h3>グラフ情報</h3>
+            <div id="statsContainer">
+                <p>アイテム数: <span id="statsCount">-</span></p>
+                <p>クラスタ数: <span id="statsCluster">-</span></p>
+                <p>エッジ数: <span id="statsEdges">-</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script>
+        class GraphVisualizer {
+            constructor() {
+                this.svg = d3.select('#graph');
+                this.color = d3.scaleOrdinal(d3.schemeCategory20);
+                this.simulation = null;
+
+                this.updateDimensions();
+                this.initSimulation();
+
+                window.addEventListener('resize', () => {
+                    this.updateDimensions();
+                    this.updateSimulationForces();
+                });
+            }
+
+            updateDimensions() {
+                const container = document.getElementById('visualizationContainer');
+                this.width = container.clientWidth - 40;
+                this.height = Math.min(this.width * 2 / 3, 800);
+
+                this.svg
+                    .attr('width', this.width)
+                    .attr('height', this.height)
+                    .attr('viewBox', `0 0 ${this.width} ${this.height}`)
+                    .attr('preserveAspectRatio', 'xMidYMid meet');
+            }
+
+            updateSimulationForces() {
+                if (this.simulation) {
+                    this.simulation
+                        .force('x', d3.forceX(this.width / 2).strength(0.04))
+                        .force('y', d3.forceY(this.height / 2).strength(0.04))
+                        .force('center', d3.forceCenter(this.width / 2, this.height / 2))
+                        .alpha(0.3)
+                        .restart();
+                }
+            }
+
+            initSimulation() {
+                const nodeRadius = 5;
+
+                this.simulation = d3.forceSimulation()
+                    .force('link', d3.forceLink()
+                        .id(d => d.id)
+                        .distance(20)
+                        .strength(0.4)
+                    )
+                    .force('charge', d3.forceManyBody().strength(-70))
+                    .force('collision', d3.forceCollide()
+                        .radius(nodeRadius + 4)
+                        .strength(0.7)
+                    )
+                    .force('x', d3.forceX(this.width / 2).strength(0.04))
+                    .force('y', d3.forceY(this.height / 2).strength(0.04))
+                    .force('center', d3.forceCenter(this.width / 2, this.height / 2));
+            }
+
+            render(graphData) {
+                this.svg.selectAll('*').remove();
+
+                const { nodes, links } = graphData;
+
+                const linkGroup = this.svg.append('g')
+                    .attr('class', 'links');
+
+                const link = linkGroup.selectAll('line')
+                    .data(links)
+                    .enter()
+                    .append('line')
+                    .attr('stroke-width', d => Math.sqrt(d.value));
+
+                const nodeGroup = this.svg.append('g')
+                    .attr('class', 'nodes');
+
+                const node = nodeGroup.selectAll('g')
+                    .data(nodes)
+                    .enter()
+                    .append('g');
+
+                const circles = node.append('circle')
+                    .attr('r', 5)
+                    .attr('fill', d => this.color(d.group))
+                    .call(d3.drag()
+                        .on('start', d => this.dragStarted(d))
+                        .on('drag', d => this.dragged(d))
+                        .on('end', d => this.dragEnded(d))
+                    );
+
+                const labels = node.append('text')
+                    .text(d => d.id)
+                    .attr('x', 6)
+                    .attr('y', 3);
+
+                node.append('title')
+                    .text(d => d.id);
+
+                this.simulation
+                    .nodes(nodes)
+                    .on('tick', () => this.ticked(link, node));
+
+                this.simulation.force('link')
+                    .links(links);
+
+                this.simulation.alpha(1).restart();
+            }
+
+            ticked(link, node) {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node.attr('transform', d => `translate(${d.x},${d.y})`);
+            }
+
+            dragStarted(d) {
+                if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            dragged(d) {
+                d.fx = d3.event.x;
+                d.fy = d3.event.y;
+            }
+
+            dragEnded(d) {
+                if (!d3.event.active) this.simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        // ページ読み込み時にJSONファイルを読み込んでグラフを描画
+        document.addEventListener('DOMContentLoaded', () => {
+            const visualizer = new GraphVisualizer();
+
+            // JSONファイルを読み込み
+            d3.json('foods-names-large.json', (error, data) => {
+                if (error) {
+                    console.error('JSONファイルの読み込みエラー:', error);
+                    const container = document.getElementById('visualizationContainer');
+                    container.innerHTML = '<div class="error-message">JSONファイルの読み込みに失敗しました</div>';
+                    return;
+                }
+
+                // グラフを描画
+                visualizer.render(data);
+
+                // 統計情報を表示
+                const uniqueGroups = new Set(data.nodes.map(n => n.group)).size;
+                document.getElementById('statsCount').textContent = data.nodes.length;
+                document.getElementById('statsCluster').textContent = uniqueGroups;
+                document.getElementById('statsEdges').textContent = data.links.length;
+            });
+        });
+    </script>
+</body>
+</html>

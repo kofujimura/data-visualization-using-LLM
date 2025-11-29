@@ -17,6 +17,16 @@ OpenAIのtext-embedding-3-smallモデルを使用して、CSV/XLSXファイル�
 
 APIキーはブラウザのLocalStorageに保存されるため、2回目以降は入力不要です。
 
+## デモ
+
+実際の動作を試せるデモサイトを公開しています：
+
+**[https://web.fujimura.com/data-visualization-using-LLM/index.html](https://web.fujimura.com/data-visualization-using-LLM/index.html)**
+
+サンプルデータをダウンロードして試すことができます：
+
+- [foods-text.xlsx](foods-text.xlsx) - 114種類の食品データ（食品名、調理法、主な材料）
+
 ## ファイル構成
 
 ### Webアプリケーション
